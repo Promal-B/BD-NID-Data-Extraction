@@ -18,7 +18,7 @@ class _ScanScreenState extends State<ScanScreen> {
   final _picker = ImagePicker();
 
   File? _image;
-  ExtractedId? _result;
+  ExtractedId? _result; // accumulates across front/back scans
   bool _busy = false;
   String? _error;
 
@@ -29,25 +29,31 @@ class _ScanScreenState extends State<ScanScreen> {
   }
 
   Future<void> _scan(ImageSource source) async {
-    final picked = await _picker.pickImage(source: source, imageQuality: 95);
+    // No maxWidth/maxHeight: downscaling hurts OCR.
+    final picked = await _picker.pickImage(source: source, imageQuality: 100);
     if (picked == null) return;
 
     setState(() {
       _busy = true;
       _error = null;
-      _result = null;
       _image = File(picked.path);
     });
 
     try {
-      final result = await _pipeline.run(picked.path);
-      setState(() => _result = result);
+      final r = await _pipeline.run(picked.path);
+      setState(() => _result = _result == null ? r : _result!.mergeWith(r));
     } catch (e) {
       setState(() => _error = 'Extraction failed. Try a sharper photo.');
     } finally {
       setState(() => _busy = false);
     }
   }
+
+  void _reset() => setState(() {
+    _result = null;
+    _image = null;
+    _error = null;
+  });
 
   String _fmt(Object v) => v is DateTime
       ? '${v.year}-${v.month.toString().padLeft(2, '0')}-${v.day.toString().padLeft(2, '0')}'
@@ -56,10 +62,24 @@ class _ScanScreenState extends State<ScanScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Scan ID')),
+      appBar: AppBar(
+        title: const Text('Scan ID'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            tooltip: 'Start over',
+            onPressed: _reset,
+          ),
+        ],
+      ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          const Text(
+            'Scan the front, then the back. Results are combined.',
+            style: TextStyle(fontSize: 13),
+          ),
+          const SizedBox(height: 12),
           Row(
             children: [
               Expanded(
@@ -121,6 +141,12 @@ class _ScanScreenState extends State<ScanScreen> {
               label: Text(e.value!.source.name.toUpperCase()),
             ),
           ),
+      for (final w in r.warnings)
+        ListTile(
+          dense: true,
+          leading: const Icon(Icons.error_outline),
+          title: Text(w),
+        ),
     ];
   }
 }
