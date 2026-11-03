@@ -6,8 +6,6 @@ import 'barcode_extractor.dart';
 import 'bd_nid_extractor.dart';
 import 'mrz_extractor.dart';
 
-/// Runs every extractor and merges per field (no early return), so a
-/// validated MRZ value wins but printed-zone fields still fill the gaps.
 class ExtractionPipeline {
   final _recognizer = TextRecognizer(script: TextRecognitionScript.latin);
   final _mrz = MrzExtractor();
@@ -18,7 +16,6 @@ class ExtractionPipeline {
     final input = InputImage.fromFilePath(imagePath);
     final text = await _recognizer.processImage(input);
 
-    // DEBUG: raw OCR dump. Remove before release (personal data).
     if (kDebugMode) {
       for (final b in text.blocks) {
         for (final l in b.lines) {

@@ -4,13 +4,12 @@ import 'package:mrz_parser/mrz_parser.dart';
 import '../models/extracted_id.dart';
 
 class MrzExtractor {
-  /// Returns null if no valid MRZ is found (including failed check digits).
   ExtractedId? extract(RecognizedText text) {
     final lines = _findMrzLines(text);
     if (lines == null) return null;
 
     try {
-      final r = MRZParser.parse(lines); // throws if check digits fail
+      final r = MRZParser.parse(lines);
       return ExtractedId()
         ..documentNumber = Field(r.documentNumber, Source.mrz, validated: true)
         ..surname = Field(r.surnames, Source.mrz, validated: true)
@@ -24,7 +23,7 @@ class MrzExtractor {
         ..birthDate = Field(r.birthDate, Source.mrz, validated: true)
         ..expiryDate = Field(r.expiryDate, Source.mrz, validated: true);
     } catch (_) {
-      return null; // misread; caller falls back or tries another frame
+      return null;
     }
   }
 
@@ -40,7 +39,6 @@ class MrzExtractor {
         .where((l) => l.contains('<') && RegExp(r'^[A-Z0-9<]+$').hasMatch(l))
         .toList();
 
-    // TD3 (passport) 2x44, TD2 2x36, TD1 3x30
     for (final spec in const [(44, 2), (36, 2), (30, 3)]) {
       final (len, count) = spec;
       final group = candidates

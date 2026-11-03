@@ -1,9 +1,9 @@
-enum Source { nfc, mrz, barcode, ocr } // order = priority (lower index wins)
+enum Source { nfc, mrz, barcode, ocr }
 
 class Field<T> {
   final T value;
   final Source source;
-  final bool validated; // check digit / signature / strict format passed
+  final bool validated;
 
   const Field(this.value, this.source, {this.validated = false});
 
@@ -15,13 +15,12 @@ class ExtractedId {
   Field<String>? documentNumber;
   Field<String>? surname;
   Field<String>? givenNames;
-  Field<String>? fullName; // single printed "Name" field (e.g. Bangladesh NID)
+  Field<String>? fullName;
   Field<String>? nationality;
   Field<String>? sex;
   Field<DateTime>? birthDate;
   Field<DateTime>? expiryDate;
 
-  /// Cross-check mismatches between sources.
   final List<String> warnings = [];
 
   bool get isEmpty =>
@@ -47,15 +46,16 @@ class ExtractedId {
     if (!warnings.contains(w)) warnings.add(w);
   }
 
-  /// Merges two results per field: validated beats unvalidated, then
-  /// source priority (nfc > mrz > barcode > ocr). Records mismatches.
   ExtractedId mergeWith(ExtractedId o) {
     final r = ExtractedId();
 
     Field<T>? pick<T>(String label, Field<T>? a, Field<T>? b) {
       if (a == null || b == null) return a ?? b;
       if (a.value != b.value) {
-        r._warn('$label differs: ${a.source.name} vs ${b.source.name}');
+        r._warn(
+          '$label differs: ${a.value} (${a.source.name}) vs '
+          '${b.value} (${b.source.name})',
+        );
       }
       if (a.validated != b.validated) return a.validated ? a : b;
       return a.source.index <= b.source.index ? a : b;
@@ -78,7 +78,6 @@ class ExtractedId {
       r._warn(w);
     }
 
-    // MRZ has surname + given names; the card prints one full name.
     final printed = r.fullName?.value;
     if (printed != null && r.surname != null) {
       final a = _tokens(printed);

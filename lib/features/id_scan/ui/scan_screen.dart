@@ -18,7 +18,7 @@ class _ScanScreenState extends State<ScanScreen> {
   final _picker = ImagePicker();
 
   File? _image;
-  ExtractedId? _result; // accumulates across front/back scans
+  ExtractedId? _result;
   bool _busy = false;
   String? _error;
 
@@ -29,7 +29,6 @@ class _ScanScreenState extends State<ScanScreen> {
   }
 
   Future<void> _scan(ImageSource source) async {
-    // No maxWidth/maxHeight: downscaling hurts OCR.
     final picked = await _picker.pickImage(source: source, imageQuality: 100);
     if (picked == null) return;
 

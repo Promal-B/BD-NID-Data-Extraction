@@ -2,9 +2,6 @@ import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart
 
 import '../models/extracted_id.dart';
 
-/// Visual-zone extraction for Bangladeshi NIDs (English fields only).
-/// Pattern-first: groups OCR lines into visual rows, then finds values by
-/// what they look like rather than by exact label position.
 class BdNidExtractor {
   static const _months = {
     'jan': 1,
@@ -27,7 +24,6 @@ class BdNidExtractor {
 
     final nid = _nid(rows);
     if (nid != null) {
-      // Real NIDs are 10, 13 or 17 digits; anything else is flagged, not dropped.
       id.documentNumber = Field(
         nid,
         Source.ocr,
@@ -41,7 +37,6 @@ class BdNidExtractor {
     return id;
   }
 
-  /// Groups OCR lines that sit on the same visual row, left to right.
   List<String> _rows(RecognizedText t) {
     final lines = t.blocks.expand((b) => b.lines).toList()
       ..sort(
@@ -99,7 +94,6 @@ class BdNidExtractor {
   }
 
   String? _name(List<String> rows) {
-    // Not anchored with ^, because Bengali noise may precede "Name" on the row.
     final label = RegExp(r'\bname\b\s*[:\-]?\s*(.*)$', caseSensitive: false);
     for (var i = 0; i < rows.length; i++) {
       final m = label.firstMatch(rows[i]);
@@ -124,7 +118,6 @@ class BdNidExtractor {
     return RegExp(r'^[A-Z][A-Z .\-]{2,}$').hasMatch(t) ? t : null;
   }
 
-  /// "07 Jan 2002", "07 JAN, 2002" or "07/01/2002"
   DateTime? _parseDate(String s) {
     final m = RegExp(r'(\d{1,2})\s*([A-Za-z]{3})[A-Za-z]*\.?,?\s*(\d{4})')
         .firstMatch(s);

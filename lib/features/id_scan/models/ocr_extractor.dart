@@ -2,8 +2,6 @@ import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart
 
 import '../models/extracted_id.dart';
 
-/// Fallback: label-based extraction. Results are NOT validated; route to review.
-/// Adjust the label patterns to your ID templates and languages.
 class OcrExtractor {
   static final _surnameLabel = RegExp(
     r'surname|last\s*name',
@@ -51,7 +49,6 @@ class OcrExtractor {
     return id;
   }
 
-  /// Finds the line to the right of a label (same row) or directly below it.
   String? _valueNextToLabel(RecognizedText t, RegExp label) {
     final allLines = t.blocks.expand((b) => b.lines).toList();
 
@@ -88,7 +85,6 @@ class OcrExtractor {
   String _cleanName(String s) =>
       s.toUpperCase().replaceAll(RegExp(r'[^A-Z\s\-\x27]'), '').trim();
 
-  /// Accepts dd.MM.yyyy, dd/MM/yyyy, dd-MM-yyyy.
   DateTime? _parseDate(String? s) {
     if (s == null) return null;
     final m = RegExp(r'(\d{2})[./-](\d{2})[./-](\d{4})').firstMatch(s);

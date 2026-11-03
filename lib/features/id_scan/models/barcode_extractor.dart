@@ -48,7 +48,6 @@ class BarcodeExtractor {
     }
   }
 
-  /// AAMVA dates are usually MMDDYYYY (US) or YYYYMMDD (Canada/others).
   DateTime? _parseDate(String? s) {
     if (s == null || s.length != 8) return null;
     final n = int.tryParse(s);
@@ -56,14 +55,12 @@ class BarcodeExtractor {
 
     final a = int.parse(s.substring(0, 4));
     if (a >= 1900 && a <= 2100) {
-      // YYYYMMDD
       return _safe(
         a,
         int.parse(s.substring(4, 6)),
         int.parse(s.substring(6, 8)),
       );
     }
-    // MMDDYYYY
     return _safe(
       int.parse(s.substring(4, 8)),
       int.parse(s.substring(0, 2)),
@@ -74,6 +71,6 @@ class BarcodeExtractor {
   DateTime? _safe(int y, int m, int d) {
     if (m < 1 || m > 12 || d < 1 || d > 31) return null;
     final dt = DateTime(y, m, d);
-    return dt.month == m ? dt : null; // rejects e.g. Feb 31
+    return dt.month == m ? dt : null;
   }
 }
