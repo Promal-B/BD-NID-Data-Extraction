@@ -46,6 +46,7 @@ dependencies:
   camera: ^0.12.2
   open_meteo: ^3.0.0
   geolocator: ^14.1.2
+  http: ^1.6.0
 
 dependency_overrides:
   google_mlkit_face_detection: ^0.15.1

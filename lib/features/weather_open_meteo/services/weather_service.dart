@@ -2,34 +2,45 @@ import 'package:geolocator/geolocator.dart';
 import 'package:open_meteo/open_meteo.dart';
 
 import '../models/weather_result.dart';
+import 'reverse_geocoding_service.dart';
 
 class WeatherLocation {
   const WeatherLocation({
     required this.name,
     required this.latitude,
     required this.longitude,
+    this.warningMessage,
   });
 
   final String name;
   final double latitude;
   final double longitude;
+  final String? warningMessage;
 }
 
 class WeatherService {
-  WeatherService({WeatherApi? weatherApi, GeocodingApi? geocodingApi})
-    : _weatherApi =
-          weatherApi ??
-          WeatherApi(
-            userAgent: 'poc_kyc-weather-feature',
-            temperatureUnit: TemperatureUnit.celsius,
-            windspeedUnit: WindspeedUnit.kmh,
-          ),
-      _geocodingApi =
-          geocodingApi ??
-          const GeocodingApi(userAgent: 'poc_kyc-weather-feature');
+  WeatherService({
+    WeatherApi? weatherApi,
+    GeocodingApi? geocodingApi,
+    ReverseGeocodingService? reverseGeocodingService,
+  }) : _weatherApi =
+           weatherApi ??
+           WeatherApi(
+             userAgent: 'poc_kyc-weather-feature',
+             temperatureUnit: TemperatureUnit.celsius,
+             windspeedUnit: WindspeedUnit.kmh,
+           ),
+       _geocodingApi =
+           geocodingApi ??
+           const GeocodingApi(userAgent: 'poc_kyc-weather-feature'),
+       _reverseGeocodingService =
+           reverseGeocodingService ?? ReverseGeocodingService();
 
   final WeatherApi _weatherApi;
   final GeocodingApi _geocodingApi;
+  final ReverseGeocodingService _reverseGeocodingService;
+
+  void dispose() => _reverseGeocodingService.close();
 
   Future<List<WeatherLocation>> searchLocations(String query) async {
     final response = await _geocodingApi.requestJson(name: query, count: 8);
@@ -74,10 +85,24 @@ class WeatherService {
     }
 
     final position = await Geolocator.getCurrentPosition();
+    var name = 'Current location';
+    String? warningMessage;
+    try {
+      name = await _reverseGeocodingService.reverseGeocode(
+        latitude: position.latitude,
+        longitude: position.longitude,
+      );
+    } on ReverseGeocodingException catch (error) {
+      warningMessage =
+          'Could not resolve the place name (${error.message}); '
+          'showing weather for your current location.';
+    }
+
     return WeatherLocation(
-      name: 'Current location',
+      name: name,
       latitude: position.latitude,
       longitude: position.longitude,
+      warningMessage: warningMessage,
     );
   }
 

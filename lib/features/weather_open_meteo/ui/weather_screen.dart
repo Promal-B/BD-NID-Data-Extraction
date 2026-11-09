@@ -19,10 +19,12 @@ class _WeatherScreenState extends State<WeatherScreen> {
   bool _isSearching = false;
   bool _isLoadingWeather = false;
   String? _errorMessage;
+  String? _warningMessage;
 
   @override
   void dispose() {
     _searchController.dispose();
+    _service.dispose();
     super.dispose();
   }
 
@@ -33,6 +35,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
     setState(() {
       _isSearching = true;
       _errorMessage = null;
+      _warningMessage = null;
       _locations = const [];
     });
     try {
@@ -53,6 +56,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
     setState(() {
       _isLoadingWeather = true;
       _errorMessage = null;
+      _warningMessage = null;
     });
     try {
       final weather = await _service.getWeather(location);
@@ -60,6 +64,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
         setState(() {
           _weather = weather;
           _locations = const [];
+          _warningMessage = location.warningMessage;
         });
       }
     } catch (error) {
@@ -73,6 +78,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
     setState(() {
       _isLoadingWeather = true;
       _errorMessage = null;
+      _warningMessage = null;
     });
     try {
       final location = await _service.getCurrentLocation();
@@ -131,6 +137,14 @@ class _WeatherScreenState extends State<WeatherScreen> {
             icon: const Icon(Icons.my_location),
             label: const Text('Use current location'),
           ),
+          const Padding(
+            padding: EdgeInsets.only(top: 8),
+            child: Text(
+              'Current-location names © OpenStreetMap contributors '
+              '(openstreetmap.org/copyright)',
+              style: TextStyle(fontSize: 12),
+            ),
+          ),
           if (_locations.isNotEmpty) ...[
             const SizedBox(height: 20),
             Text(
@@ -155,6 +169,13 @@ class _WeatherScreenState extends State<WeatherScreen> {
             Text(
               _errorMessage!,
               style: TextStyle(color: Theme.of(context).colorScheme.error),
+            ),
+          ],
+          if (_warningMessage != null) ...[
+            const SizedBox(height: 16),
+            Text(
+              _warningMessage!,
+              style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
             ),
           ],
           if (_isLoadingWeather) ...[
