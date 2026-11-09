@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'features/face_scan/services/face_verification_service.dart';
 import 'features/face_scan/ui/home_screen.dart';
 import 'features/id_scan/ui/scan_screen.dart';
+import 'features/weather_open_meteo/ui/weather_screen.dart';
 
 void main() => runApp(const KycApp());
 
@@ -35,6 +36,12 @@ class KycApp extends StatelessWidget {
       description: 'Verify a face with liveness detection',
       icon: Icons.face_retouching_natural,
       builder: (_) => HomeScreen(service: FaceVerificationService()),
+    ),
+    _Feature(
+      title: 'Weather',
+      description: 'Check current weather by location',
+      icon: Icons.wb_sunny_outlined,
+      builder: (_) => const WeatherScreen(),
     ),
   ];
 

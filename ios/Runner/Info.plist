@@ -6,6 +6,8 @@
     <string>Camera is used to scan your ID document.</string>
     <key>NSPhotoLibraryUsageDescription</key>
     <string>Photo library is used to select an ID image.</string>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>Location is used to show weather for your current location.</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>

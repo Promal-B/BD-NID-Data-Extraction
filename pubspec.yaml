@@ -44,6 +44,8 @@ dependencies:
   mrz_parser: ^2.0.1
   image_picker: ^1.2.4
   camera: ^0.12.2
+  open_meteo: ^3.0.0
+  geolocator: ^14.1.2
 
 dependency_overrides:
   google_mlkit_face_detection: ^0.15.1
