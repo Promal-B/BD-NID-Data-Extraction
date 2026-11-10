@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:open_meteo/open_meteo.dart';
 
+import '../models/weather_code.dart';
 import '../models/weather_result.dart';
 import '../services/weather_service.dart';
 
@@ -254,9 +255,10 @@ class _WeatherCard extends StatelessWidget {
             ...currentEntries.map(
               (entry) => _InfoRow(
                 label: _currentLabel(entry.key),
-                value:
-                    '${_formatValue(entry.key, entry.value.value)} '
-                    '${entry.value.unit}',
+                value: entry.key == WeatherCurrent.weather_code
+                    ? _formatValue(entry.key, entry.value.value)
+                    : '${_formatValue(entry.key, entry.value.value)} '
+                          '${entry.value.unit}',
               ),
             ),
             const SizedBox(height: 8),
@@ -308,7 +310,7 @@ String _currentLabel(WeatherCurrent variable) {
     WeatherCurrent.rain => 'Rain',
     WeatherCurrent.showers => 'Showers',
     WeatherCurrent.snowfall => 'Snowfall',
-    WeatherCurrent.weather_code => 'Weather code',
+    WeatherCurrent.weather_code => 'Weather conditions',
     WeatherCurrent.cloud_cover => 'Cloud cover',
     WeatherCurrent.pressure_msl => 'Pressure (mean sea level)',
     WeatherCurrent.surface_pressure => 'Surface pressure',
@@ -319,8 +321,12 @@ String _currentLabel(WeatherCurrent variable) {
 }
 
 String _formatValue(WeatherCurrent variable, double value) {
-  if (variable == WeatherCurrent.is_day ||
-      variable == WeatherCurrent.weather_code) {
+  if (variable == WeatherCurrent.weather_code) {
+    final code = value.round();
+    final weatherCode = WeatherCode.fromCode(code);
+    return '${weatherCode.localizationKey} ($code)';
+  }
+  if (variable == WeatherCurrent.is_day) {
     return value.round().toString();
   }
   return value.toStringAsFixed(1);
