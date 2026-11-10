@@ -321,7 +321,7 @@ packages:
     source: hosted
     version: "0.13.0"
   google_mlkit_face_detection:
-    dependency: "direct overridden"
+    dependency: "direct main"
     description:
       name: google_mlkit_face_detection
       sha256: dd4a6c61e45390217cdc7522e7766b77e9d075cdface0503716ec6722e33d4f4
@@ -377,7 +377,7 @@ packages:
     source: hosted
     version: "0.2.1"
   image:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: image
       sha256: "89ed75b2f8231fe676808c5564f9590d728024ded7ac782a7ed8474f1c95b72a"

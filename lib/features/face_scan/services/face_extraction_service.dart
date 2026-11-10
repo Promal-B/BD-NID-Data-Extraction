@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:typed_data';
 import 'dart:ui' show Rect;
 
 import 'package:flutter/foundation.dart';
@@ -170,10 +169,12 @@ class FaceExtractionService {
       maxSide: 100000,
     );
     final luma = ImageUtils.meanLuma(probe);
-    if (luma < VerificationConfig.minReferenceLuma)
+    if (luma < VerificationConfig.minReferenceLuma) {
       return 'The face is too dark.';
-    if (luma > VerificationConfig.maxReferenceLuma)
+    }
+    if (luma > VerificationConfig.maxReferenceLuma) {
       return 'The face is overexposed.';
+    }
     if (ImageUtils.sharpness(probe) <
         VerificationConfig.minReferenceSharpness) {
       return 'The face is too blurry for reliable matching.';

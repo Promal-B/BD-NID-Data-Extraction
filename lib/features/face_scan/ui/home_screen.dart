@@ -69,9 +69,11 @@ class _HomeScreenState extends State<HomeScreen> {
     final reference = _faceBytes;
     if (reference == null || _status != _RefStatus.valid) return;
 
+    final navigator = Navigator.of(context);
     while (mounted) {
-      final liveness = await Navigator.of(context)
-          .push<LivenessOutcome>(_fade(const FaceScanScreen()));
+      final liveness = await navigator.push<LivenessOutcome>(
+        _fade(const FaceScanScreen()),
+      );
       if (liveness == null || !mounted) return; // cancelled
 
       setState(() => _comparing = true);
@@ -82,8 +84,9 @@ class _HomeScreenState extends State<HomeScreen> {
       if (!mounted) return;
       setState(() => _comparing = false);
 
-      final retry = await Navigator.of(context)
-          .push<bool>(_fade(VerificationResultScreen(result: result)));
+      final retry = await navigator.push<bool>(
+        _fade(VerificationResultScreen(result: result)),
+      );
       if (retry != true) {
         if (mounted) {
           setState(() {
@@ -98,9 +101,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   PageRoute<T> _fade<T>(Widget page) => PageRouteBuilder<T>(
-    pageBuilder: (_, __, ___) => page,
-    transitionsBuilder: (_, anim, __, child) =>
-        FadeTransition(opacity: anim, child: child),
+    pageBuilder: (_, _, _) => page,
+    transitionsBuilder: (_, animation, _, child) =>
+        FadeTransition(opacity: animation, child: child),
     transitionDuration: const Duration(milliseconds: 300),
   );
 
